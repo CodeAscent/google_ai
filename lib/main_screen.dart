@@ -13,7 +13,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late GenerativeModel _generativeModel;
-  TextEditingController _controller = TextEditingController();
+  TextEditingController _controller = TextEditingController(text: "Hi");
   List responses = [];
   @override
   void initState() {
@@ -37,98 +37,106 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       isLoading = false;
     });
+    _scrollController.animateTo(
+      _scrollController.position.extentTotal,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeOut,
+    );
     Logger().e(responses);
   }
 
+  ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text("GOOGLE AI CHAT BOT"),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                ...List.generate(
-                  responses.length,
-                  (index) => SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: responses[index].containsKey("my")
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: Get.width * 0.65,
-                          child: Align(
-                            child: Card(
-                                color: !responses[index].containsKey("my")
-                                    ? Colors.black
-                                    : Colors.white,
-                                child: responses[index].containsKey("my")
-                                    ? ListTile(
-                                        title: Text("Me"),
-                                        titleTextStyle: TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.w900),
-                                        subtitle: Text(responses[index]["my"]),
-                                        subtitleTextStyle:
-                                            TextStyle(color: Colors.black),
-                                      )
-                                    : ListTile(
-                                        title: Text("Google AI"),
-                                        titleTextStyle: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w900),
-                                        subtitle: Text(responses[index]["ai"]),
-                                        subtitleTextStyle:
-                                            TextStyle(color: Colors.white),
-                                      )),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            )),
-      ),
-      bottomNavigationBar: Container(
-        height: 80,
-        child: Padding(
+      body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
             children: [
-              Container(
-                constraints: BoxConstraints(
-                  maxWidth: Get.width * 0.68,
-                ),
-                child: TextFormField(
-                  controller: _controller,
-                  readOnly: isLoading,
-                  decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(10),
-                      border: OutlineInputBorder()),
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  // physics: NeverScrollableScrollPhysics(),
+                  itemCount: responses.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    return SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: responses[index].containsKey("my")
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: Get.width * 0.65,
+                            child: Align(
+                              child: Card(
+                                  color: !responses[index].containsKey("my")
+                                      ? Colors.black
+                                      : Colors.white,
+                                  child: responses[index].containsKey("my")
+                                      ? ListTile(
+                                          title: Text("Me"),
+                                          titleTextStyle: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.w900),
+                                          subtitle:
+                                              Text(responses[index]["my"]),
+                                          subtitleTextStyle:
+                                              TextStyle(color: Colors.black),
+                                        )
+                                      : ListTile(
+                                          title: Text("Google AI"),
+                                          titleTextStyle: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w900),
+                                          subtitle:
+                                              Text(responses[index]["ai"]),
+                                          subtitleTextStyle:
+                                              TextStyle(color: Colors.white),
+                                        )),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
-              Spacer(),
-              ElevatedButton(
-                  onPressed: isLoading
-                      ? () {}
-                      : () async {
-                          responses.add({"my": _controller.text});
-                          await generate();
-                        },
-                  child: Text(isLoading ? "Loading..." : "Search"))
+              Container(
+                height: 60,
+                child: TextFormField(
+                  controller: _controller,
+                  // readOnly: isLoading,
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                        onPressed: isLoading
+                            ? () {}
+                            : () async {
+                                _scrollController.animateTo(
+                                  _scrollController.position.extentTotal,
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.easeOut,
+                                );
+                                responses.add({"my": _controller.text});
+                                await generate();
+                              },
+                        icon: Icon(
+                          isLoading ? Icons.stop_circle_outlined : Icons.send,
+                          color: Colors.black,
+                        )),
+                    // isDense: true,
+                    // contentPadding: EdgeInsets.all(8),
+                  ),
+                ),
+              ),
             ],
-          ),
-        ),
-      ),
+          )),
     );
   }
 }
