@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_ai/api_key.dart';
@@ -57,9 +58,40 @@ class _MainScreenState extends State<MainScreen> {
         actions: [
           IconButton(
               onPressed: () {
-                setState(() {
-                  responses.clear();
-                });
+                showCupertinoDialog(
+                  context: context,
+                  builder: (context) {
+                    return Center(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: CupertinoActionSheet(
+                          title: Text("Alert"),
+                          message:
+                              Text('Are you sure you want to clear the list?'),
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    responses.clear();
+                                  });
+                                  Get.back();
+                                },
+                                child: Text(
+                                  'Yes',
+                                  style: TextStyle(color: Colors.red),
+                                )),
+                            TextButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                child: Text('No',
+                                    style: TextStyle(color: Colors.blue)))
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
               icon: Icon(Icons.delete))
         ],
