@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_ai/api_key.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:logger/logger.dart';
+import 'package:lottie/lottie.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -51,89 +52,106 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text("GOOGLE AI CHAT BOT"),
+        title: Text("Google AI Chat Bird"),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  responses.clear();
+                });
+              },
+              icon: Icon(Icons.delete))
+        ],
       ),
       body: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
+          child: Stack(
             children: [
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  // physics: NeverScrollableScrollPhysics(),
-                  itemCount: responses.length,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    return SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        crossAxisAlignment: responses[index].containsKey("my")
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: Get.width * 0.65,
-                            child: Align(
-                              child: Card(
-                                  color: !responses[index].containsKey("my")
-                                      ? Colors.black
-                                      : Colors.white,
-                                  child: responses[index].containsKey("my")
-                                      ? ListTile(
-                                          title: Text("Me"),
-                                          titleTextStyle: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w900),
-                                          subtitle:
-                                              Text(responses[index]["my"]),
-                                          subtitleTextStyle:
-                                              TextStyle(color: Colors.black),
-                                        )
-                                      : ListTile(
-                                          title: Text("Google AI"),
-                                          titleTextStyle: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w900),
-                                          subtitle:
-                                              Text(responses[index]["ai"]),
-                                          subtitleTextStyle:
-                                              TextStyle(color: Colors.white),
-                                        )),
-                            ),
+              LottieBuilder.asset('assets/images/birds.json'),
+              Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      // physics: NeverScrollableScrollPhysics(),
+                      itemCount: responses.length,
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int index) {
+                        return SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            crossAxisAlignment:
+                                responses[index].containsKey("my")
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: Get.width * 0.65,
+                                child: Align(
+                                  child: Card(
+                                      color: !responses[index].containsKey("my")
+                                          ? Colors.black
+                                          : Colors.white,
+                                      child: responses[index].containsKey("my")
+                                          ? ListTile(
+                                              title: Text("Me"),
+                                              titleTextStyle: TextStyle(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.w900),
+                                              subtitle:
+                                                  Text(responses[index]["my"]),
+                                              subtitleTextStyle: TextStyle(
+                                                  color: Colors.black),
+                                            )
+                                          : ListTile(
+                                              title: Text("Google AI"),
+                                              titleTextStyle: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w900),
+                                              subtitle:
+                                                  Text(responses[index]["ai"]),
+                                              subtitleTextStyle: TextStyle(
+                                                  color: Colors.white),
+                                            )),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Container(
-                height: 60,
-                child: TextFormField(
-                  controller: _controller,
-                  // readOnly: isLoading,
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                        onPressed: isLoading
-                            ? () {}
-                            : () async {
-                                _scrollController.animateTo(
-                                  _scrollController.position.extentTotal,
-                                  duration: Duration(milliseconds: 500),
-                                  curve: Curves.easeOut,
-                                );
-                                responses.add({"my": _controller.text});
-                                await generate();
-                              },
-                        icon: Icon(
-                          isLoading ? Icons.stop_circle_outlined : Icons.send,
-                          color: Colors.black,
-                        )),
-                    // isDense: true,
-                    // contentPadding: EdgeInsets.all(8),
+                        );
+                      },
+                    ),
                   ),
-                ),
+                  Container(
+                    height: 60,
+                    child: TextFormField(
+                      controller: _controller,
+                      // readOnly: isLoading,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                            onPressed: isLoading
+                                ? () {}
+                                : () async {
+                                    _scrollController.animateTo(
+                                      _scrollController.position.extentTotal,
+                                      duration: Duration(milliseconds: 500),
+                                      curve: Curves.easeOut,
+                                    );
+                                    responses.add({"my": _controller.text});
+                                    await generate();
+                                  },
+                            icon: Icon(
+                              isLoading
+                                  ? Icons.stop_circle_outlined
+                                  : Icons.send,
+                              color: Colors.black,
+                            )),
+                        // isDense: true,
+                        // contentPadding: EdgeInsets.all(8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           )),
